@@ -123,3 +123,9 @@ dmypy.json
 .pyre/
 
 .DS_Store
+
+# CircuitPython mpy-cross https://github.com/adafruit/circuitpython/tree/master/mpy-cross
+circuitpython
+
+# Build artifacts
+artifacts/
