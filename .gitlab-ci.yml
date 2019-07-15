@@ -1,0 +1,13 @@
+image: python:3.7
+
+build:
+  script:
+    - apt-get -y update
+    - apt-get install -y make gettext
+    - mkdir artifacts/
+    - make get-mpy-cross
+    - make build
+    - make save
+  artifacts:
+    paths:
+      - artifacts/
