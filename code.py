@@ -1,10 +1,18 @@
+"""
+Main module for the Gen Con 2019 PyPortal badge.
+
+Setup the PyPortal with a connection to a time api for the countdown clock functionality
+and then monitor for button events and route to the menu.py module.
+
+For more information about the PyPortal see https://learn.adafruit.com/adafruit-pyportal
+"""
 import board
 from random import randint
 from time import sleep
 from analogio import AnalogIn
 from adafruit_pyportal import PyPortal
 from utils import countdown_formatter
-from menu import render_menu, clear_menu, keep_alive, new_background, RETURN_MENU
+from menu import new_screen, init_home_screen, RETURN_MENU
 
 try:
     from secrets import secrets  # noqa
@@ -27,8 +35,10 @@ pyportal = PyPortal(
 pyportal.preload_font()
 
 # Render default home menu
-buttons = render_menu(pyportal)
+buttons = init_home_screen(pyportal)
 
+# Setup our super loop to manage screen brightness and monitor our home menu for
+# button events.
 while True:
     # Calibrate light sensor on start to deal with different lighting situations
     # If the mode change isn't responding properly, reset your PyPortal to recalibrate
@@ -44,45 +54,39 @@ while True:
             mode = 0
 
     touch = pyportal.touchscreen.touch_point
+    # In the case of a button event figure out which button was pressed and render
+    # that buttons screen.
     if touch:
         for button in buttons:
             if button.contains(touch):
                 if button.name == "exhibit_hall_map":
-                    clear_menu(pyportal)
-                    new_background(pyportal, "/images/2019-exhibit-map.bmp")
-                    buttons = render_menu(pyportal, RETURN_MENU)
-                    keep_alive(pyportal, buttons)
-                    clear_menu(pyportal)
-                    new_background(pyportal)
-                    buttons = render_menu(pyportal)
+                    buttons = new_screen(
+                        pyportal,
+                        new_background="/images/2019-exhibit-map.bmp",
+                        menu=RETURN_MENU,
+                    )
                     break
                 elif button.name == "con_map":
-                    clear_menu(pyportal)
-                    new_background(pyportal, "/images/2019-con-map.bmp")
-                    buttons = render_menu(pyportal, RETURN_MENU)
-                    keep_alive(pyportal, buttons)
-                    clear_menu(pyportal)
-                    new_background(pyportal)
-                    buttons = render_menu(pyportal)
+                    buttons = new_screen(
+                        pyportal,
+                        new_background="/images/2019-con-map.bmp",
+                        menu=RETURN_MENU,
+                    )
                     break
                 elif button.name == "schedule":
-                    clear_menu(pyportal)
-                    new_background(pyportal, "/images/2019-schedule.bmp")
-                    buttons = render_menu(pyportal, RETURN_MENU)
-                    keep_alive(pyportal, buttons)
-                    clear_menu(pyportal)
-                    new_background(pyportal)
-                    buttons = render_menu(pyportal)
+                    buttons = new_screen(
+                        pyportal,
+                        new_background="/images/2019-schedule.bmp",
+                        menu=RETURN_MENU,
+                    )
                     break
                 elif button.name == "d20":
-                    roll = randint(1, 20)
-                    clear_menu(pyportal)
-                    new_background(pyportal, "/images/d20.bmp")
-                    buttons = render_menu(
+                    buttons = new_screen(
                         pyportal,
-                        [
+                        new_background="/images/d20.bmp",
+                        menu=[
                             (
-                                str(roll),
+                                str(randint(1, 20)),
                                 "return",
                                 (138, 100),
                                 (45, 45),
@@ -92,18 +96,13 @@ while True:
                             )
                         ],
                     )
-                    keep_alive(pyportal, buttons)
-                    clear_menu(pyportal)
-                    new_background(pyportal)
-                    buttons = render_menu(pyportal)
                     break
                 elif button.name == "countdown":
-                    clear_menu(pyportal)
-                    new_background(pyportal, "/images/gen-con-logo.bmp")
                     day = pyportal.fetch()
-                    buttons = render_menu(
+                    buttons = new_screen(
                         pyportal,
-                        [
+                        new_background="/images/gen-con-logo.bmp",
+                        menu=[
                             (
                                 countdown_formatter(day),
                                 "return",
@@ -115,19 +114,13 @@ while True:
                             )
                         ],
                     )
-                    keep_alive(pyportal, buttons)
-                    clear_menu(pyportal)
-                    new_background(pyportal)
-                    buttons = render_menu(pyportal)
                     break
                 elif button.name == "badge":
-                    clear_menu(pyportal)
-                    new_background(pyportal, "/images/2019-con-badge.bmp")
-                    buttons = render_menu(pyportal, RETURN_MENU)
-                    keep_alive(pyportal, buttons)
-                    clear_menu(pyportal)
-                    new_background(pyportal)
-                    buttons = render_menu(pyportal)
+                    buttons = new_screen(
+                        pyportal,
+                        new_background="/images/2019-con-badge.bmp",
+                        menu=RETURN_MENU,
+                    )
                     break
                 else:
                     break
